@@ -22,14 +22,6 @@ public class HomeController : Controller
     }
 
 
-    // Show products using a searchString as param .. !
-
-    public async Task<IActionResult> IndexFiltered(string searchString)
-    {
-        var products = _context.Products;
-
-        return View(await products.ToListAsync());
-    }
 
     // GET /Home/ 
     // Shows products
@@ -43,7 +35,7 @@ public class HomeController : Controller
             products = products.Where(p => p.Name.ToLower().Contains(searchString) ||
                 p.Description.ToLower().Contains(searchString)).ToList();
         }
-        products.ForEach(p => Debug.WriteLine(p)); // ComprovaciÛ r‡pida de que s'han creat els dos items
+        products.ForEach(p => Debug.WriteLine(p)); // Comprovaci√≥ r√†pida de que s'han creat els dos items
         return View(products);
     }
 
@@ -110,7 +102,7 @@ public class HomeController : Controller
         }
 
         //return View(product);
-        // Torna a ensenyar la p‡gina d'ediciÛ
+        // Torna a ensenyar la p√†gina d'edici√≥
         //return View("UpdateProduct", product);
         return View("UpdateProduct", product);
     }
