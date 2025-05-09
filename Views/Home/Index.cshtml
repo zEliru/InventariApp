@@ -1,0 +1,140 @@
+﻿@using System.Globalization
+@model IEnumerable<InventariApp.Models.Product>
+@{
+    ViewData["Title"] = "Inventory List";
+
+    // Get current sort order and column (asc/desc + which column to order by)
+    var sortOrder = Context.Request.Query["sortOrder"].ToString();
+    var currentSort = string.IsNullOrEmpty(sortOrder) ? "name" : sortOrder;
+
+    // Define sort parameters ... removed sorting by id and description in the end
+    var nameSortParam = currentSort == "name_desc" ? "name" : "name_desc";
+    var quantitySortParam = currentSort == "quantity_desc" ? "quantity" : "quantity_desc";
+    var priceSortParam = currentSort == "price_desc" ? "price" : "price_desc";
+
+    // Apply the sorting
+    var sortedModel = Model;
+
+    switch (currentSort)
+    {
+        case "name_desc":
+            sortedModel = sortedModel.OrderByDescending(p => p.Name);
+            break;
+
+        case "quantity":
+            sortedModel = sortedModel.OrderBy(p => p.Quantity);
+            break;
+        case "quantity_desc":
+            sortedModel = sortedModel.OrderByDescending(p => p.Quantity);
+            break;
+        case "price":
+            sortedModel = sortedModel.OrderBy(p => p.Price);
+            break;
+        case "price_desc":
+            sortedModel = sortedModel.OrderByDescending(p => p.Price);
+            break;
+        default:
+            sortedModel = sortedModel.OrderBy(p => p.Name);
+            break;
+    }
+}
+
+<h1>Gestió d'Inventari</h1>
+<p>
+    <a asp-action="Create" class="btn btn-primary">Crear Nou Producte</a>
+</p>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <form asp-action="Index" method="get">
+            <div class="input-group">
+                <input type="text" name="searchString" value="@ViewData["CurrentFilter"]"
+                class="form-control" placeholder="Cerca per nom/descripció..." id="searchInput" />
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-search"></i> Cerca
+                </button>
+                @if (!string.IsNullOrEmpty(ViewData["CurrentFilter"] as string))
+                {
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle">Esborra filtre</i>
+                    </a>
+                }
+            </div>
+        </form>
+
+
+    </div>
+
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>
+                Id
+            </th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@nameSortParam">
+                    Nom
+                    @if (currentSort == "name")
+                    {
+                        <i class="fa fa-sort-asc"></i>
+                    }
+                    @if (currentSort == "name_desc")
+                    {
+                        <i class="fa fa-sort-desc"></i>
+                    }
+                </a>
+            </th>
+            <th>
+                Descripció             
+            </th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@quantitySortParam">
+                    Stock
+                    @if (currentSort == "quantity")
+                    {
+                        <i class="fa fa-sort-asc"></i>
+                    }
+                    @if (currentSort == "quantity_desc")
+                    {
+                        <i class="fa fa-sort-desc"></i>
+                    }
+                </a>
+            </th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@priceSortParam">
+                    Preu
+                    @if (currentSort == "price")
+                    {
+                        <i class="fa fa-sort-asc"></i>
+                    }
+                    @if (currentSort == "price_desc")
+                    {
+                        <i class="fa fa-sort-desc"></i>
+                    }
+                </a>
+            </th>
+            <th>Accions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in sortedModel)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>@item.Name</td>
+                <td>@item.Description</td>
+                <td>@item.Quantity</td>
+                <td>@item.Price.ToString("F2", CultureInfo.InvariantCulture)€</td>
+
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Canvia</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Esborra</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
